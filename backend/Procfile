@@ -1,0 +1,1 @@
+web: gunicorn outpass_system.wsgi

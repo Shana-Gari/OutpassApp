@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "C:\Users\Shana\Desktop\OutpassApp\backend\debug_import.py", line 12, in <module>
+    import apps.outpasses.serializers
+  File "C:\Users\Shana\Desktop\OutpassApp\backend\apps\outpasses\serializers.py", line 3, in <module>
+    from apps.users.serializers import UserSerializer
+ImportError: cannot import name 'UserSerializer' from 'apps.users.serializers' (C:\Users\Shana\Desktop\OutpassApp\backend\apps\users\serializers.py)
