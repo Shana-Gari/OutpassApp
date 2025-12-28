@@ -84,6 +84,12 @@ class StaffDashboardViewSet(viewsets.ReadOnlyModelViewSet):
         history_param = self.request.query_params.get('history')
         search_param = self.request.query_params.get('search')
 
+        class_name = self.request.query_params.get('class_name')
+        section = self.request.query_params.get('section')
+        roll_no = self.request.query_params.get('roll_no')
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+
         if status_param:
             status_param = status_param.lower()
 
@@ -99,11 +105,23 @@ class StaffDashboardViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(student__hostel__name__icontains=search_param)
             )
 
+        # Precise Filters
+        if class_name:
+            queryset = queryset.filter(student__class_obj__name__iexact=class_name)
+        if section:
+            queryset = queryset.filter(student__section__name__iexact=section)
+        if roll_no:
+            queryset = queryset.filter(student__roll_number__icontains=roll_no)
+        if start_date:
+            queryset = queryset.filter(outgoing_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(outgoing_date__lte=end_date)
+
         # Common Filters
         if priority_param == 'true':
             return queryset.filter(is_priority=True).exclude(status__in=[Outpass.Status.COMPLETED, Outpass.Status.CANCELLED, Outpass.Status.REJECTED]).order_by('-created_at')
 
-        if history_param == 'true':
+        if history_param == 'true' and not status_param:
             return queryset.order_by('-created_at')
 
         if status_param == 'returned':
@@ -147,17 +165,21 @@ class StaffDashboardViewSet(viewsets.ReadOnlyModelViewSet):
             if hasattr(user, 'staff_profile') and user.staff_profile.assigned_hostel:
                 queryset = queryset.filter(student__hostel=user.staff_profile.assigned_hostel)
             
-            if status_param == 'in_hostel':
-                return queryset.filter(status=Outpass.Status.APPROVED).order_by('outgoing_date')
-            elif status_param == 'checked_out':
-                return queryset.filter(status=Outpass.Status.READY_FOR_EXIT).order_by('-updated_at')
-            elif not status_param and not search_param:
-                # Default for Warden: Today's pending departures and recent checkouts
-                today = timezone.now().date()
-                return queryset.filter(
-                    status__in=[Outpass.Status.APPROVED, Outpass.Status.READY_FOR_EXIT],
-                    outgoing_date=today
-                ).order_by('outgoing_date')
+            # Apply dashboard filters only for list action
+            if self.action == 'list':
+                if status_param == 'in_hostel':
+                    return queryset.filter(status=Outpass.Status.APPROVED).order_by('outgoing_date')
+                elif status_param == 'checked_out':
+                    return queryset.filter(status=Outpass.Status.READY_FOR_EXIT).order_by('-updated_at')
+                elif status_param == 'outside':
+                    return queryset.filter(status__in=[Outpass.Status.CHECKED_OUT, Outpass.Status.OVERDUE]).order_by('-checkout_time')
+                elif not status_param and not search_param:
+                    # Default for Warden: Today's pending departures and recent checkouts
+                    today = timezone.now().date()
+                    return queryset.filter(
+                        status__in=[Outpass.Status.APPROVED, Outpass.Status.READY_FOR_EXIT],
+                        outgoing_date=today
+                    ).order_by('outgoing_date')
             return queryset
 
         elif role == User.Roles.GATE_STAFF:
@@ -262,9 +284,9 @@ class StaffDashboardViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'status': 'meeting scheduled'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post'], url_path='hm_mark_returned')
+    @action(detail=True, methods=['post'], url_path='mark-returned')
     def mark_returned(self, request, pk=None):
-        if request.user.role != User.Roles.HM:
+        if request.user.role not in [User.Roles.HM, User.Roles.WARDEN]:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         
         outpass = self.get_object()
@@ -272,7 +294,7 @@ class StaffDashboardViewSet(viewsets.ReadOnlyModelViewSet):
         outpass.actual_return_date = timezone.now()
         outpass.save()
         
-        return Response({'status': 'Marked as returned by HM'})
+        return Response({'status': f'Marked as returned by {request.user.role}'})
 
 
 
