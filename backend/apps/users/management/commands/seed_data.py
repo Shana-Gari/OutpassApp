@@ -61,12 +61,12 @@ class Command(BaseCommand):
             # Admin (Traditional)
             if not User.objects.filter(role='ADMIN').exists():
                 if not User.objects.filter(is_superuser=True).exists():
-                     User.objects.create_superuser('admin', 'admin@school.com', 'admin')
+                     User.objects.create_superuser('admin', 'admin', email='admin@school.com')
 
             # Admin (Dedicated Phone)
             admin_phone = '9999999900'
             if not User.objects.filter(phone=admin_phone).exists():
-                User.objects.create_superuser(admin_phone, 'admin@school.com', 'admin')
+                User.objects.create_superuser(admin_phone, 'admin', email='admin@school.com')
             else:
                 # Ensure it has admin privileges if it already exists (e.g. from previous runs)
                 u = User.objects.get(phone=admin_phone)
