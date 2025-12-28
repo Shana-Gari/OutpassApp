@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../../services/api';
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '../../../components/ui/table';
 import { Input } from '../../../components/ui/input';
-import { Button } from '../../../components/ui/button';
 
 const HMHistory = () => {
     const [outpasses, setOutpasses] = useState([]);

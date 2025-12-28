@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/input';
 const AccountantDashboard = () => {
     const [outpasses, setOutpasses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedOutpass, setSelectedOutpass] = useState(null);
+    const [selectedOutpass, setSelectedOutpass] = useState<any>(null);
     const [feeAmount, setFeeAmount] = useState('');
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
 
@@ -27,7 +27,7 @@ const AccountantDashboard = () => {
         }
     };
 
-    const handleApprove = async (id) => {
+    const handleApprove = async (id: string) => {
         try {
             await api.post(`/staff/dashboard/${id}/accountant/approve/`);
             fetchOutpasses();
@@ -37,7 +37,7 @@ const AccountantDashboard = () => {
         }
     };
 
-    const handleOpenFeeModal = (outpass) => {
+    const handleOpenFeeModal = (outpass: any) => {
         setSelectedOutpass(outpass);
         setIsFeeModalOpen(true);
         setFeeAmount('');

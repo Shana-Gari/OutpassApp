@@ -1,14 +1,14 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Button } from '../../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import Modal from '../../components/Modal'; // Making sure path is correct relative to pages/dashboard
-import { Calendar, Clock, MapPin, AlertCircle, Phone, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Phone, ArrowRight, AlertCircle, Clock } from 'lucide-react';
 
 const HMDashboard = () => {
     const navigate = useNavigate();
