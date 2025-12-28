@@ -58,10 +58,23 @@ class Command(BaseCommand):
 
             # 4. Users
             
-            # Admin (if not exists)
+            # Admin (Traditional)
             if not User.objects.filter(role='ADMIN').exists():
                 if not User.objects.filter(is_superuser=True).exists():
                      User.objects.create_superuser('admin', 'admin@school.com', 'admin')
+
+            # Admin (Dedicated Phone)
+            admin_phone = '9999999900'
+            if not User.objects.filter(phone=admin_phone).exists():
+                User.objects.create_superuser(admin_phone, 'admin@school.com', 'admin')
+            else:
+                # Ensure it has admin privileges if it already exists (e.g. from previous runs)
+                u = User.objects.get(phone=admin_phone)
+                if not u.is_superuser or u.role != 'ADMIN':
+                    u.is_superuser = True
+                    u.is_staff = True
+                    u.role = 'ADMIN'
+                    u.save()
 
             # Staff - Warden Boys
             warden_b, created = User.objects.get_or_create(phone='9876543210', defaults={
