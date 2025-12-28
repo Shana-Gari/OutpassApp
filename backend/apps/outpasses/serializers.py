@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Outpass, Approval
-from apps.users.serializers import UserSerializer
+
 from apps.students.models import Student
 
 class OutpassSerializer(serializers.ModelSerializer):
